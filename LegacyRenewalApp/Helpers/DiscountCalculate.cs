@@ -4,8 +4,6 @@ namespace LegacyRenewalApp;
 
 public class DiscountCalculate:IDiscountCalculate
 {
-    private decimal SubTotalDiscount;
-    
     
     public decimal CalculateDiscount(DiscountContext data)
     {

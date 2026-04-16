@@ -8,19 +8,23 @@ namespace LegacyRenewalApp
         public readonly ICustomerRepository _customerRepository;
         public readonly ISubscriptionPlanRepository _planRepository;
         public readonly IRenewalServiceValidator _validator;
+        public readonly IDiscountCalculate _discount;
         
         public SubscriptionRenewalService()
-            : this(new CustomerRepository(), new SubscriptionPlanRepository(),new RenewalServiceValidator())
+            : this(new CustomerRepository(), new SubscriptionPlanRepository(),new RenewalServiceValidator(),
+                new DiscountCalculate())
         {}
 
         public SubscriptionRenewalService(
             ICustomerRepository customerRepository,
             ISubscriptionPlanRepository planRepository,
-            IRenewalServiceValidator validator)
+            IRenewalServiceValidator validator,
+            IDiscountCalculate discount)
         {
             _customerRepository = customerRepository;   
             _planRepository = planRepository;
             _validator = validator;
+            _discount =  discount;
         }
         
         public RenewalInvoice CreateRenewalInvoice(
@@ -44,7 +48,24 @@ namespace LegacyRenewalApp
                 throw new InvalidOperationException("Inactive customers cannot renew subscriptions");
             }
 
-            decimal baseAmount = (plan.MonthlyPricePerSeat * seatCount * 12m) + plan.SetupFee;
+             decimal baseAmount = (plan.MonthlyPricePerSeat * seatCount * 12m) + plan.SetupFee;
+            
+            var data = new DiscountContext
+            {
+                Customer = customer,
+                Plan = plan,
+                BaseAmount = baseAmount,
+                SeatCount = seatCount,
+                UseLoyaltyPoints = useLoyaltyPoints
+            };
+
+            _discount.CalculateDiscount(data);
+            
+            
+            
+            
+
+           
             decimal discountAmount = 0m;
             string notes = string.Empty;
 
