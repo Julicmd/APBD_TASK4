@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LegacyRenewalApp.Interfaces;
 
 namespace LegacyRenewalApp
@@ -9,22 +10,28 @@ namespace LegacyRenewalApp
         public readonly ISubscriptionPlanRepository _planRepository;
         public readonly IRenewalServiceValidator _validator;
         public readonly IDiscountCalculate _discount;
+        public readonly IPaymenTFeeCalc _paymenTFeeCalc;
+        public readonly ISubTotalCalculation _subTotalCalc;
         
         public SubscriptionRenewalService()
             : this(new CustomerRepository(), new SubscriptionPlanRepository(),new RenewalServiceValidator(),
-                new DiscountCalculate())
+                new DiscountCalculate(), new PaymentFeeCalculation(),new SubtotalCalculator())
         {}
 
         public SubscriptionRenewalService(
             ICustomerRepository customerRepository,
             ISubscriptionPlanRepository planRepository,
             IRenewalServiceValidator validator,
-            IDiscountCalculate discount)
+            IDiscountCalculate discount,
+            IPaymenTFeeCalc paymenTFeeCalc,
+            ISubTotalCalculation subTotalCalc)
         {
             _customerRepository = customerRepository;   
             _planRepository = planRepository;
             _validator = validator;
             _discount =  discount;
+            _paymenTFeeCalc = paymenTFeeCalc;
+            _subTotalCalc = subTotalCalc;
         }
         
         public RenewalInvoice CreateRenewalInvoice(
@@ -60,15 +67,20 @@ namespace LegacyRenewalApp
             };
 
             _discount.CalculateDiscount(data);
-            
-            
 
-            decimal subtotalAfterDiscount = baseAmount - discountAmount;
-            if (subtotalAfterDiscount < 300m)
+            var pricedata = new PricingContext
             {
-                subtotalAfterDiscount = 300m;
-                notes += "minimum discounted subtotal applied; ";
-            }
+                BaseAmount = data.BaseAmount,
+                DiscountAmount = data.DiscountAmount,
+                PaymentMethod = normalizedPaymentMethod,
+                Notes = new List<string>(data.Notes)
+
+            };
+            
+            _subTotalCalc.SubCalculate(pricedata);
+            _paymenTFeeCalc.PayFeeCalc(pricedata);
+            
+            
 
             decimal supportFee = 0m;
             if (includePremiumSupport)

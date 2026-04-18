@@ -10,5 +10,5 @@ public class DiscountContext
     public bool UseLoyaltyPoints { get; set; }
     public int SeatCount { get; set; }
     public decimal DiscountAmount { get; set; }
-    public string Notes { get; set; } 
+    public List<string> Notes { get; set; } 
 }

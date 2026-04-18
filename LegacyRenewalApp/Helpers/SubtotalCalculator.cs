@@ -1,16 +1,20 @@
+using LegacyRenewalApp.Interfaces;
+
 namespace LegacyRenewalApp;
 
-public class SubtotalCalculator
+public class SubtotalCalculator:ISubTotalCalculation
 {
 
-    public decimal SubTotalCalculate(DiscountContext ctx)
+    public decimal SubCalculate(PricingContext ctx)
     {
         decimal subtotalAfterDiscount = ctx.BaseAmount - ctx.DiscountAmount;
         if (subtotalAfterDiscount < 300m)
         {
             subtotalAfterDiscount = 300m;
-            ctx.Notes+="minimum discounted subtotal applied; ";
+            ctx.Notes.Add("minimum discounted subtotal applied; ");
         }
+        ctx.SubtotalAfterDiscount = subtotalAfterDiscount;
         return subtotalAfterDiscount;
     }
+    
 }

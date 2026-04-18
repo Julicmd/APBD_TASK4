@@ -4,8 +4,13 @@ namespace LegacyRenewalApp;
 
 public class PricingContext
 {
-    public string paymentMethod { get; set; }
-    public decimal supportFee { get; set; }
-    public decimal paymentFee { get; set; }
     
+    public decimal BaseAmount { get; set; }
+    public decimal DiscountAmount { get; set; }
+    public decimal SubtotalAfterDiscount { get; set; }
+    public string PaymentMethod { get; set; }
+    public decimal SupportFee { get; set; }
+    public decimal PaymentFee { get; set; }
+    public List<string> Notes { get; set; } = new();
+
 }
