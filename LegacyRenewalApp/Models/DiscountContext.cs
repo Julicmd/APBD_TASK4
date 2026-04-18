@@ -9,9 +9,6 @@ public class DiscountContext
     public decimal BaseAmount { get; set; }
     public bool UseLoyaltyPoints { get; set; }
     public int SeatCount { get; set; }
-    
-    
-    
     public decimal DiscountAmount { get; set; }
-    public List<string> Notes { get; set; } = new();
+    public string Notes { get; set; } 
 }

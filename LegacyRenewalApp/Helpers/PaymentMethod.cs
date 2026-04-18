@@ -2,15 +2,22 @@ using LegacyRenewalApp.Interfaces;
 
 namespace LegacyRenewalApp;
 
-public class PaymentMethod:IPaymentMethod
+public class PaymentMethod:IPaymenTFeeCalc
 {
 
-    public void PayMethod(PayContext data)
+    public void PayMethod(PricingContext data, DiscountContext dctx)
     {
-        if (data.PaymentMethod == "CARD")
+        decimal subtotalAfterDiscount = dctx.BaseAmount - dctx.DiscountAmount;
+        if (subtotalAfterDiscount < 300m)
         {
-            data.Amount = (subtotalAfterDiscount + supportFee) * 0.02m;
-            data.Notes += "card payment fee; ";
+            subtotalAfterDiscount = 300m;
+            dctx.Notes+="minimum discounted subtotal applied; ";
+        }
+        
+        if (data.paymentMethod == "CARD")
+        {
+            data.paymentFee = (subtotalAfterDiscount + data.supportFee) * 0.02m;
+            dctx.Notes+="card payment fee; ";
         }
         else if (normalizedPaymentMethod == "BANK_TRANSFER")
         {
